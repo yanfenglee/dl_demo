@@ -187,7 +187,7 @@ def test(test_x, test_y, parameters):
 
     result = (test_y == yhat)
     p = np.sum(result,dtype=float) / np.sum((test_y==1))
-    
+
     print("precision: ", p,np.sum(result,dtype=float), np.sum((test_y==1)))
 
 def main():
@@ -199,7 +199,7 @@ def main():
     layers_dims = [64, 10, 17, 15, 1]
     parameters = L_layer_model(train_x, train_y, layers_dims, num_iterations = 2500, print_cost = True)
     
-    test(test_x, test_y, parameters)
+    test(train_x, train_y, parameters)
 
 
 main()
