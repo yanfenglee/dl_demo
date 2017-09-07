@@ -182,17 +182,20 @@ def test(test_x, test_y, parameters):
     
     print(yhat)
 
-    result = (test_y == yhat)
+    result = (test_y == (yhat>0.5))
     p = np.sum(result,dtype=float) / len(test_y)
     print("precision: ", p)
 
 def main():
     train_x,train_y,test_x,test_y = loaddata()
+
+    train_x = train_x/255.
+    test_x = test_x/255.
     
     layers_dims = [64, 20, 7, 5, 1]
-    parameters = L_layer_model(train_x, train_y, layers_dims, num_iterations = 5500, print_cost = True)
+    parameters = L_layer_model(train_x, train_y, layers_dims, num_iterations = 2500, print_cost = True)
     
-    test(train_x, train_x, parameters)
+    test(test_x, test_y, parameters)
 
 
 main()
