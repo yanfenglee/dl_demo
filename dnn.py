@@ -153,7 +153,7 @@ def L_layer_model(X, Y, layers_dims, learning_rate = 0.0075, num_iterations = 30
     # plot the cost
     plt.plot(np.squeeze(costs))
     plt.ylabel('cost')
-    plt.xlabel('iterations (per tens)')
+    plt.xlabel('iterations (per 100)')
     plt.title("Learning rate =" + str(learning_rate))
     plt.show()
     
@@ -199,7 +199,7 @@ def main():
     layers_dims = [64, 10, 17, 15, 1]
     parameters = L_layer_model(train_x, train_y, layers_dims, num_iterations = 2500, print_cost = True)
     
-    test(train_x, train_y, parameters)
+    test(test_x, test_y, parameters)
 
 
 main()
