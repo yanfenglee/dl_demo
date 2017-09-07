@@ -183,7 +183,7 @@ def test(test_x, test_y, parameters):
     print(yhat)
 
     result = (test_y == (yhat>0.5))
-    p = np.sum(result,dtype=float) / len(test_y)
+    p = np.sum(result,dtype=float) / len(test_y[0,:])
     print("precision: ", p)
 
 def main():
