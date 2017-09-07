@@ -22,7 +22,7 @@ def sigmoid_farward(z):
 
 def relu_farward(z):
     out = z * (z > 0)
-    cache = z
+    cache = out.copy()
     return out, cache
 
 def linear_activation_forward(A_prev, W, b, activation):
