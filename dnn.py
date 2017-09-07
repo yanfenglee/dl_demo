@@ -15,21 +15,24 @@ def initialize_parameters_deep(layer_dims):
 
     return parameters
 
-def sigmoid(z):
-    return 1/(1+np.exp(-z))
+def sigmoid_farward(z):
+    out = 1/(1+np.exp(-z))
+    cache = out.copy()
+    return out, cache
 
-def relu(z):
-    return z * (z > 0)
-    #return np.maximum(z, 0, z)
+def relu_farward(z):
+    out = z * (z > 0)
+    cache = z
+    return out, cache
 
 def linear_activation_forward(A_prev, W, b, activation):
     if activation == "sigmoid":
         Z, linear_cache = np.dot(W,A_prev) + b, (A_prev, W, b)
-        A, activation_cache = (sigmoid(Z),sigmoid(Z))
+        A, activation_cache = sigmoid_farward(Z)
     
     elif activation == "relu":
         Z, linear_cache = np.dot(W,A_prev) + b, (A_prev, W, b)
-        A, activation_cache = (relu(Z),relu(Z))
+        A, activation_cache = relu_farward(Z)
     
     assert (A.shape == (W.shape[0], A_prev.shape[1]))
     cache = (linear_cache, activation_cache)
@@ -83,7 +86,7 @@ def relu_backward(dA, cache):
 
 def sigmoid_backward(dA, cache):
     A = cache
-    return dA * A * (1-A)
+    return dA * (A * (1-A))
 
 
 def linear_activation_backward(dA, cache, activation):
@@ -197,7 +200,7 @@ def main():
     test_x = test_x/255.
     
     layers_dims = [64, 10, 17, 15, 1]
-    parameters = L_layer_model(train_x, train_y, layers_dims, num_iterations = 2500, print_cost = True)
+    parameters = L_layer_model(train_x, train_y, layers_dims, learning_rate = 0.0075,num_iterations = 2500, print_cost = True)
     
     test(test_x, test_y, parameters)
 
