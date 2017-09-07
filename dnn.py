@@ -169,10 +169,10 @@ def loaddata():
     ntrain = 1500
 
     train_x = X[:,:ntrain]
-    train_y = (Y[:,:ntrain] == 4)
+    train_y = (Y[:,:ntrain] == 4)-0
 
     test_x = X[:,ntrain:]
-    test_y = (Y[:,ntrain:] == 4)
+    test_y = (Y[:,ntrain:] == 4)-0
 
     return train_x, train_y, test_x, test_y
 
@@ -182,9 +182,13 @@ def test(test_x, test_y, parameters):
     
     print(yhat)
 
-    result = (test_y == (yhat>0.5))
-    p = np.sum(result,dtype=float) / len(test_y[0,:])
-    print("precision: ", p)
+    yhat = (yhat>0.5)-0
+    yhat[yhat==0] = -1
+
+    result = (test_y == yhat)
+    p = np.sum(result,dtype=float) / np.sum((test_y==1))
+    
+    print("precision: ", p,np.sum(result,dtype=float), np.sum((test_y==1)))
 
 def main():
     train_x,train_y,test_x,test_y = loaddata()
@@ -192,7 +196,7 @@ def main():
     train_x = train_x/255.
     test_x = test_x/255.
     
-    layers_dims = [64, 20, 7, 5, 1]
+    layers_dims = [64, 10, 17, 15, 1]
     parameters = L_layer_model(train_x, train_y, layers_dims, num_iterations = 2500, print_cost = True)
     
     test(test_x, test_y, parameters)
