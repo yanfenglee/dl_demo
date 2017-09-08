@@ -81,7 +81,7 @@ def relu_backward(dA, cache):
 
 def sigmoid_backward(dA, cache):
     A = cache
-    return dA * (A * (1-A))
+    return dA * A * (1-A)
 
 def linear_activation_backward(dA, cache, activation):
     linear_cache, activation_cache = cache
