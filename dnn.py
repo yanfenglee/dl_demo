@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import h5py
 
 def initialize_parameters_deep(layer_dims):
     parameters = {}
@@ -7,7 +8,7 @@ def initialize_parameters_deep(layer_dims):
 
     for l in range(1, L):
 
-        parameters['W' + str(l)] = np.random.randn(layer_dims[l], layer_dims[l-1]) * 0.01
+        parameters['W' + str(l)] = np.random.randn(layer_dims[l], layer_dims[l-1]) / np.sqrt(layer_dims[l-1]) # * 0.01
         parameters['b' + str(l)] = np.zeros((layer_dims[l], 1))
         
         assert(parameters['W' + str(l)].shape == (layer_dims[l], layer_dims[l-1]))
@@ -21,7 +22,7 @@ def sigmoid_farward(z):
     return out, cache
 
 def relu_farward(z):
-    out = z * (z > 0)
+    out = np.maximum(0,z)
     cache = z
     return out, cache
 
@@ -173,6 +174,21 @@ def loaddata():
 
     return train_x, train_y, test_x, test_y
 
+def loadcat():
+    train_dataset = h5py.File('datasets/train_catvnoncat.h5', "r")
+    train_set_x_orig = np.array(train_dataset["train_set_x"][:]) # your train set features
+    train_set_y_orig = np.array(train_dataset["train_set_y"][:]) # your train set labels
+
+    test_dataset = h5py.File('datasets/test_catvnoncat.h5', "r")
+    test_set_x_orig = np.array(test_dataset["test_set_x"][:]) # your test set features
+    test_set_y_orig = np.array(test_dataset["test_set_y"][:]) # your test set labels
+
+    classes = np.array(test_dataset["list_classes"][:]) # the list of classes
+    
+    train_set_y_orig = train_set_y_orig.reshape((1, train_set_y_orig.shape[0]))
+    test_set_y_orig = test_set_y_orig.reshape((1, test_set_y_orig.shape[0]))
+    
+    return train_set_x_orig, train_set_y_orig, test_set_x_orig, test_set_y_orig, classes
 
 def test(test_x, test_y, parameters):
     yhat, cache = L_model_forward(test_x, parameters)
@@ -180,16 +196,15 @@ def test(test_x, test_y, parameters):
     print('----target-----')
     print(test_y)
 
-    yhat = (yhat>0.10196311)-0
+    yhat = (yhat>0.5)-0
     print('----predict-----')
     print(yhat)
     yhat[yhat==0] = -1
 
     result = (test_y == yhat)-0
-    print(result)
-    p = np.sum(result,dtype=float) / np.sum((yhat==1))
+    p = np.sum(result) / (np.sum((yhat==1)+1))
 
-    print("precision: ", p,np.sum(result,dtype=float), np.sum((yhat==1)))
+    print("precision: ", p,np.sum(result), np.sum((yhat==1)))
 
 def main():
     train_x,train_y,test_x,test_y = loaddata()
@@ -200,9 +215,24 @@ def main():
     print(train_x.shape,test_x.shape)
     
     layers_dims = [64, 10, 17, 15, 1]
-    parameters = L_layer_model(train_x, train_y, layers_dims, learning_rate = 0.0075,num_iterations = 5000, print_cost = True)
+    parameters = L_layer_model(train_x, train_y, layers_dims, learning_rate = 0.0075,num_iterations = 2500, print_cost = True)
     
     test(test_x, test_y, parameters)
 
 
-main()
+def main2():
+    train_x_orig, train_y, test_x_orig, test_y, classes = loadcat()
+    train_x_flatten = train_x_orig.reshape(train_x_orig.shape[0], -1).T   # The "-1" makes reshape flatten the remaining dimensions
+    test_x_flatten = test_x_orig.reshape(test_x_orig.shape[0], -1).T
+
+    # Standardize data to have feature values between 0 and 1.
+    train_x = train_x_flatten/255.
+    test_x = test_x_flatten/255.
+
+    layers_dims = [12288, 20, 17, 15, 1]
+    parameters = L_layer_model(train_x, train_y, layers_dims, learning_rate = 0.0075,num_iterations = 2000, print_cost = True)
+    
+    test(test_x, test_y, parameters)
+
+#main()
+main2()
