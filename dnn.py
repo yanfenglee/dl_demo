@@ -152,7 +152,7 @@ def L_layer_model(X, Y, layers_dims, learning_rate = 0.0075, num_iterations = 30
     plt.ylabel('cost')
     plt.xlabel('iterations (per 100)')
     plt.title("Learning rate =" + str(learning_rate))
-    #plt.show()
+    plt.show()
     
     return parameters
 
@@ -166,33 +166,30 @@ def loaddata():
     ntrain = 1500
 
     train_x = X[:,:ntrain]
-    train_y = (Y[:,:ntrain] == 4)
-
-    aa = train_x[:,np.squeeze(train_y)]
-    bb = np.c_[train_x,aa,aa,aa,aa,aa,aa,aa,aa,aa]
-    cc = np.ones((1,aa.shape[1]),dtype=bool)
-    dd = np.c_[train_y,cc,cc,cc,cc,cc,cc,cc,cc,cc]
+    train_y = (Y[:,:ntrain] == 4)-0
 
     test_x = X[:,ntrain:]
-    test_y = (Y[:,ntrain:] == 4)
+    test_y = (Y[:,ntrain:] == 4)-0
 
-    return bb, dd, test_x, test_y
+    return train_x, train_y, test_x, test_y
 
 
 def test(test_x, test_y, parameters):
     yhat, cache = L_model_forward(test_x, parameters)
     
-    print(yhat)
-    print((yhat > 0.10196311))
+    print('----target-----')
     print(test_y)
 
-    yhat = (yhat>0.5)
+    yhat = (yhat>0.10196311)-0
+    print('----predict-----')
+    print(yhat)
     yhat[yhat==0] = -1
 
-    result = (test_y == yhat)
-    p = np.sum(result,dtype=float) / np.sum((test_y==1))
+    result = (test_y == yhat)-0
+    print(result)
+    p = np.sum(result,dtype=float) / np.sum((yhat==1))
 
-    print("precision: ", p,np.sum(result,dtype=float), np.sum((test_y==1)))
+    print("precision: ", p,np.sum(result,dtype=float), np.sum((yhat==1)))
 
 def main():
     train_x,train_y,test_x,test_y = loaddata()
