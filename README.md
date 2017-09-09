@@ -1,5 +1,21 @@
 # dl_demo
-* asdf what is that of coz
+
+## softmax function
+
+$$a_j = \frac{e^{z_j}}{\sum_k e^{z_k}}$$
+
+## cross entropy loss
+
+$$L = -\sum_k y_k \log a_k$$
+
+## cross entropy loss derivative
+
+$$\frac{\partial L}{\partial z_i}=-\sum_k y_k \frac{1}{a_k} \frac{\partial a_k}{\partial z_i}$$
+$$= -y_i(1-a_i)-\sum_{k\neq i} y_k \frac{1}{p_k}(-p_ka_i)$$
+$$= -y_i(1-a_i)+\sum_{k\neq i} y_k a_i$$
+$$= -y_i+y_ia_i+\sum_{k\neq i} y_k a_i$$
+$$= a_i \sum_ky_k -y_i$$
+$$= a_i-y_i$$
 
 
-$$ \frac{\partial L}{\partial o_i}=-\sum_ky_k\frac{\partial \log p_k}{\partial o_i}=-\sum_ky_k\frac{1}{p_k}\frac{\partial p_k}{\partial o_i}\\=-y_i(1-p_i)-\sum_{k\neq i}y_k\frac{1}{p_k}({\color{red}{-p_kp_i}})\\=-y_i(1-p_i)+\sum_{k\neq i}y_k({\color{red}{p_i}})\\=-y_i+\color{blue}{y_ip_i+\sum_{k\neq i}y_k({p_i})}\\=\color{blue}{p_i\left(\sum_ky_k\right)}-y_i=p_i-y_i $$
+
