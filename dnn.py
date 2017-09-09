@@ -8,7 +8,7 @@ def initialize_parameters_deep(layer_dims):
 
     for l in range(1, L):
 
-        parameters['W' + str(l)] = np.random.randn(layer_dims[l], layer_dims[l-1]) / np.sqrt(layer_dims[l-1]) # * 0.01
+        parameters['W' + str(l)] = np.random.randn(layer_dims[l], layer_dims[l-1])/np.sqrt(layer_dims[l-1])
         parameters['b' + str(l)] = np.zeros((layer_dims[l], 1))
         
         assert(parameters['W' + str(l)].shape == (layer_dims[l], layer_dims[l-1]))
@@ -195,6 +195,7 @@ def test(test_x, test_y, parameters):
     
     print('----target-----')
     print(test_y)
+    print(yhat)
 
     yhat = (yhat>0.5)-0
     print('----predict-----')
@@ -202,7 +203,7 @@ def test(test_x, test_y, parameters):
     yhat[yhat==0] = -1
 
     result = (test_y == yhat)-0
-    p = np.sum(result) / (np.sum((yhat==1)+1))
+    p = np.sum(result) / (np.sum((yhat==1))+1)
 
     print("precision: ", p,np.sum(result), np.sum((yhat==1)))
 
