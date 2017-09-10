@@ -6,12 +6,8 @@ $$a_j = \frac{e^{z_j}}{\sum_k e^{z_k}}$$
 
 ## derivative of softmax
 
-$$ \frac{\partial a_j}{\partial z_i} =
-  \begin{cases}
-    a_i(1 - a_i), \quad i = j\\
-    -a_i a_j,\quad i \neq j.
-  \end{cases}
-$$
+$$ \frac{\partial a_j}{\partial z_i} = a_i(1 - a_i), \quad i = j $$
+$$ \frac{\partial a_j}{\partial z_i} = -a_i a_j,\quad i \neq j. $$
 
 ## cross entropy loss
 
