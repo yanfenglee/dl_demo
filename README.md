@@ -1,4 +1,4 @@
-# dl_demo
+# used math formulas
 
 ## sigmoid
 $$ s=sigmoid(z) = \frac{1}{1+\exp(-z)}$$
