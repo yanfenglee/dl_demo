@@ -1,17 +1,17 @@
 # dl_demo
 
-##sigmoid
+## sigmoid
 $$ s=sigmoid(z) = \frac{1}{1+\exp(-z)}$$
 $$ \frac{ds}{dz} = s(1-s) $$
 
-##tanh
+## tanh
 $$ t=tanh(z) = \frac{e^z-e^{-z}}{e^z+e^{-z}}=2*sigmoid(z)-1 $$
 $$ \frac{dt}{dz} = 1-t^2 $$
 
-##relu
+## relu
 $$ relu(z) = max(0,z) $$
 
-##softmax
+## softmax
 * softmax function
 
 $$a_j = \frac{e^{z_j}}{\sum_k e^{z_k}}$$
