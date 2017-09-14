@@ -10,8 +10,9 @@ class LSTMCell:
         self.fgate = self.init_gate()
         self.ggate = self.init_gate()
         self.ogate = self.init_gate()
-        self.h_prev = tf.zeros([128,self.num_units])
-        self.c_prev = tf.zeros([128,self.num_units])
+
+    def get_state_size(self):
+        return (self.input_size,self.num_units)
 
     def init_gate(self):
         initializer = tf.orthogonal_initializer()
@@ -25,27 +26,32 @@ class LSTMCell:
         wx,wh,b = gate
         return tf.matmul(X,wx) + tf.matmul(H,wh) + b
 
-    def step(self,X):
-        i = self.callgate(X, self.h_prev, self.igate)
-        f = self.callgate(X, self.h_prev, self.fgate)
-        o = self.callgate(X, self.h_prev, self.ogate)
-        g = self.callgate(X, self.h_prev, self.ggate)
+    def call(self, X, hc):
+        h_prev,c_prev = hc
 
-        c = self.c_prev * tf.sigmoid(f+1.0) + tf.tanh(g) * tf.sigmoid(i)
+        i = self.callgate(X, h_prev, self.igate)
+        f = self.callgate(X, h_prev, self.fgate)
+        o = self.callgate(X, h_prev, self.ogate)
+        g = self.callgate(X, h_prev, self.ggate)
+
+        c = c_prev * tf.sigmoid(f) + tf.tanh(g) * tf.sigmoid(i)
         h = tf.tanh(c) * tf.sigmoid(o)
 
-        self.h_prev = h
-        self.c_prev = c
-
-        return h
+        return h,c
 
 
 def RNN(cell, X):
-    #h = tf.scan(fn = cell.step, elems = X)
+    
     houtputs=[]
+
+    input_size,units = cell.get_state_size()
+
+    h = tf.zeros([128, units])
+    c = tf.zeros([128, units])
+
     for x in X:
-        h = cell.step(x)
-        houtputs.append(h)
+        h,c = cell.call(x,(h,c))
+        houtputs.append((h,c))
 
     return houtputs
 
@@ -81,8 +87,9 @@ def main():
     x1 = procdata(x,num_steps=n_steps,input_size=n_input)
     cell = LSTMCell(input_size=n_input, num_units=n_hidden)
     outputs = RNN(cell, x1)
+    h,_ = outputs[-1]
     #outputs = tf.reshape(outputs, [-1,n_hidden])
-    yhat = tf.matmul(outputs[-1], weights) + biases
+    yhat = tf.matmul(h, weights) + biases
 
     predict = tf.nn.softmax(yhat)
     
