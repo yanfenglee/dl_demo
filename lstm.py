@@ -62,9 +62,9 @@ def main():
     mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 
     learning_rate = 0.001
-    max_samples = 400000
+    max_epoch = 10000
     batch_size = 128
-    display_step = 10
+    display_step = 100
 
     n_input = 28
     n_steps = 28
@@ -101,19 +101,19 @@ def main():
     with tf.Session() as sess:
         sess.run(init)
         #sess = tf_debug.LocalCLIDebugWrapperSession(sess)
-        step = 1
-        while step * batch_size < max_samples:
+        epoch = 1
+        while epoch <= max_epoch:
             batch_x, batch_y = mnist.train.next_batch(batch_size)
             batch_x = batch_x.reshape((batch_size, n_steps, n_input))
             sess.run(optimizer, feed_dict={x: batch_x, y: batch_y})
-            if step % display_step == 0:
+            if epoch % display_step == 0:
                 acc = sess.run(accuracy, feed_dict={x: batch_x, y: batch_y})
                 loss = sess.run(cost, feed_dict={x: batch_x, y: batch_y})
-                print ("Iter" + str(step * batch_size) + ", Minibatch Loss=" + \
+                print ("epoch " + str(epoch) + ", Minibatch Loss=" + \
                     "{:.6f}".format(loss) + ", Training Accuracy= " + \
                     "{:.5f}".format(acc))
             
-            step += 1
+            epoch += 1
         print ("Optimization Finishes!")
 
         test_len = 128
