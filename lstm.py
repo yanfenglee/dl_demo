@@ -83,6 +83,8 @@ def main():
     outputs = RNN(cell, x1)
     #outputs = tf.reshape(outputs, [-1,n_hidden])
     yhat = tf.matmul(outputs[-1], weights) + biases
+
+    predict = tf.nn.softmax(yhat)
     
     # cost function
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=yhat,labels=y))
@@ -91,7 +93,7 @@ def main():
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
 
     # compute accuracy
-    correct_pred = tf.equal(tf.argmax(yhat, 1), tf.argmax(y, 1))
+    correct_pred = tf.equal(tf.argmax(predict, 1), tf.argmax(y, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
     init = tf.global_variables_initializer()
