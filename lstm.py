@@ -15,36 +15,39 @@ class LSTMCell:
 
     def init_gate(self):
         initializer = tf.orthogonal_initializer()
-        Wx = initializer([self.input_size,self.num_units])
-        Wh = initializer([self.num_units,self.num_units])
-        b = tf.zeros([self.num_units])
+        Wx = tf.Variable(initializer([self.input_size,self.num_units]),trainable=True)
+        Wh = tf.Variable(initializer([self.num_units,self.num_units]),trainable=True)
+        b = tf.Variable(tf.zeros([self.num_units]),trainable=True)
 
         return Wx,Wh,b
 
-    def callgate(self,X,H,gate,fn):
+    def callgate(self,X,H,gate):
         wx,wh,b = gate
-        return fn(tf.matmul(X,wx) + tf.matmul(H,wh) + b)
+        return tf.matmul(X,wx) + tf.matmul(H,wh) + b
 
     def step(self,X):
-        i = self.callgate(X, self.h_prev, self.igate, tf.sigmoid)
-        f = self.callgate(X, self.h_prev, self.fgate, tf.sigmoid)
-        o = self.callgate(X, self.h_prev, self.ogate, tf.sigmoid)
-        g = self.callgate(X, self.h_prev, self.ggate, tf.tanh)
+        i = self.callgate(X, self.h_prev, self.igate)
+        f = self.callgate(X, self.h_prev, self.fgate)
+        o = self.callgate(X, self.h_prev, self.ogate)
+        g = self.callgate(X, self.h_prev, self.ggate)
 
-        c = self.c_prev * f + g * i
-        h = tf.tanh(c) * o
+        c = self.c_prev * tf.sigmoid(f+1.0) + tf.tanh(g) * tf.sigmoid(i)
+        h = tf.tanh(c) * tf.sigmoid(o)
 
         self.h_prev = h
         self.c_prev = c
 
         return h
 
+
 def RNN(cell, X):
     #h = tf.scan(fn = cell.step, elems = X)
+    houtputs=[]
     for x in X:
         h = cell.step(x)
+        houtputs.append(h)
 
-    return h
+    return houtputs
 
 def procdata(X, num_steps, input_size):
     X = tf.transpose(X,[1,0,2])
@@ -58,14 +61,14 @@ def main():
 
     mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 
-    learning_rate = 0.01
-    max_samples = 40000
+    learning_rate = 0.001
+    max_samples = 400000
     batch_size = 128
     display_step = 10
 
     n_input = 28
     n_steps = 28
-    n_hidden = 256
+    n_hidden = 128
     n_classes = 10
 
     x = tf.placeholder(tf.float32, [None, n_steps, n_input])
@@ -78,8 +81,8 @@ def main():
     x1 = procdata(x,num_steps=n_steps,input_size=n_input)
     cell = LSTMCell(input_size=n_input, num_units=n_hidden)
     outputs = RNN(cell, x1)
-    outputs = tf.reshape(outputs, [-1,n_hidden])
-    yhat = tf.matmul(outputs, weights) + biases
+    #outputs = tf.reshape(outputs, [-1,n_hidden])
+    yhat = tf.matmul(outputs[-1], weights) + biases
     
     # cost function
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=yhat,labels=y))
