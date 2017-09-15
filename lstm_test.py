@@ -14,6 +14,7 @@ def main():
 
     mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 
+    use_l2 = True
     learning_rate = 0.001
     max_epoch = 10000
     batch_size = 128
@@ -27,8 +28,8 @@ def main():
     x = tf.placeholder(tf.float32, [None, n_steps, n_input])
     y = tf.placeholder(tf.float32, [None, n_classes])
 
-    weights = tf.Variable(tf.random_normal([n_hidden, n_classes]))
-    biases = tf.Variable(tf.random_normal([n_classes]))
+    weights = tf.Variable(tf.random_normal([n_hidden, n_classes]), trainable=True)
+    biases = tf.Variable(tf.random_normal([n_classes]), trainable=True)
 
     # begin lstm
     x1 = procdata(x,num_steps=n_steps,input_size=n_input)
@@ -44,6 +45,10 @@ def main():
     
     # cost function
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=yhat,labels=y))
+
+    if use_l2:
+        regularizers = tf.nn.l2_loss(weights) + cell.get_l2() + cell2.get_l2()
+        cost = tf.reduce_mean(cost + 0.01 * regularizers)
 
     # optimize
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)

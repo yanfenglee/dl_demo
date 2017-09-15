@@ -26,6 +26,13 @@ class LSTMCell:
 
         return Wx,Wh,b
 
+    def get_gate_l2(self, gate):
+        wx,wh,_ = gate
+        return tf.nn.l2_loss(wx) + tf.nn.l2_loss(wh)
+
+    def get_l2(self):
+        return self.get_gate_l2(self.igate) + self.get_gate_l2(self.ogate) + self.get_gate_l2(self.ggate) + self.get_gate_l2(self.fgate)
+
     def linear(self,X,H,gate):
         wx,wh,b = gate
         return tf.matmul(X,wx) + tf.matmul(H,wh) + b
