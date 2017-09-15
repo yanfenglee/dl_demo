@@ -48,7 +48,7 @@ def main():
 
     if use_l2:
         regularizers = tf.nn.l2_loss(weights) + cell.get_l2() + cell2.get_l2()
-        cost = tf.reduce_mean(cost + 0.01 * regularizers)
+        cost = tf.reduce_mean(cost + 0.005 * regularizers)
 
     # optimize
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
