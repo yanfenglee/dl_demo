@@ -1,26 +1,6 @@
 import tensorflow as tf
 import rnn_cell as rc
-
-def RNN(cell, X):
-    
-    out = []
-
-    units = cell.get_units()
-
-    shape = X[0].get_shape()
-    if shape.ndims != 2:
-        raise ValueError("dim not 2: %d", shape.ndims)
-
-    right_size = shape[1].value
-
-    h = tf.matmul(X[0], tf.zeros([right_size, units]))
-    c = tf.matmul(X[0], tf.zeros([right_size, units]))
-
-    for x in X:
-        h,c = cell.call(x,(h,c))
-        out.append((h,c))
-
-    return out
+import rnn
 
 def procdata(X, num_steps, input_size):
     X = tf.transpose(X,[1,0,2])
@@ -53,7 +33,7 @@ def main():
     # begin lstm
     x1 = procdata(x,num_steps=n_steps,input_size=n_input)
     cell = rc.LSTMCell(n_hidden)
-    outputs = RNN(cell, x1)
+    outputs = rnn.LSTM(cell, x1)
     h,_ = outputs[-1]
     #outputs = tf.reshape(outputs, [-1,n_hidden])
     yhat = tf.matmul(h, weights) + biases
