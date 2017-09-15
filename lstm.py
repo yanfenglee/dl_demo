@@ -2,21 +2,26 @@ import tensorflow as tf
 from tensorflow.python import debug as tf_debug
 
 class LSTMCell:
-    def __init__(self, input_size, num_units):
-        self.input_size = input_size
+    def __init__(self, num_units):
         self.num_units = num_units
+        self.igate = None
+        self.fgate = None
+        self.ggate = None
+        self.ogate = None
 
-        self.igate = self.init_gate()
-        self.fgate = self.init_gate()
-        self.ggate = self.init_gate()
-        self.ogate = self.init_gate()
+    def get_units(self):
+        return self.num_units
 
-    def get_state_size(self):
-        return (self.input_size,self.num_units)
+    def init_all_gates(self, input_size):
+        self.igate = self.init_gate(input_size)
+        self.fgate = self.init_gate(input_size)
+        self.ggate = self.init_gate(input_size)
+        self.ogate = self.init_gate(input_size)
 
-    def init_gate(self):
+
+    def init_gate(self, input_size):
         initializer = tf.orthogonal_initializer()
-        Wx = tf.Variable(initializer([self.input_size,self.num_units]),trainable=True)
+        Wx = tf.Variable(initializer([input_size,self.num_units]),trainable=True)
         Wh = tf.Variable(initializer([self.num_units,self.num_units]),trainable=True)
         b = tf.Variable(tf.zeros([self.num_units]),trainable=True)
 
@@ -28,6 +33,9 @@ class LSTMCell:
 
     def call(self, X, hc):
         h_prev,c_prev = hc
+
+        if self.igate == None:
+            self.init_all_gates(X.get_shape()[1].value)
 
         i = self.linear(X, h_prev, self.igate)
         f = self.linear(X, h_prev, self.fgate)
@@ -44,12 +52,16 @@ def RNN(cell, X):
     
     out = []
 
-    input_size,units = cell.get_state_size()
+    units = cell.get_units()
 
-    batch_size = tf.placeholder(tf.int32,name='nbatch')
+    shape = X[0].get_shape()
+    if shape.ndims != 2:
+        raise ValueError("dim not 2: %d", shape.ndims)
 
-    h = tf.zeros([batch_size, units])
-    c = tf.zeros([batch_size, units])
+    right_size = shape[1].value
+
+    h = tf.matmul(X[0], tf.zeros([right_size, units]))
+    c = tf.matmul(X[0], tf.zeros([right_size, units]))
 
     for x in X:
         h,c = cell.call(x,(h,c))
@@ -87,7 +99,7 @@ def main():
 
     # begin lstm
     x1 = procdata(x,num_steps=n_steps,input_size=n_input)
-    cell = LSTMCell(input_size=n_input, num_units=n_hidden)
+    cell = LSTMCell(n_hidden)
     outputs = RNN(cell, x1)
     h,_ = outputs[-1]
     #outputs = tf.reshape(outputs, [-1,n_hidden])
@@ -114,10 +126,10 @@ def main():
         while epoch <= max_epoch:
             batch_x, batch_y = mnist.train.next_batch(batch_size)
             batch_x = batch_x.reshape((batch_size, n_steps, n_input))
-            sess.run(optimizer, feed_dict={x: batch_x, y: batch_y, 'nbatch:0': batch_size})
+            sess.run(optimizer, feed_dict={x: batch_x, y: batch_y})
             if epoch % display_step == 0:
-                acc = sess.run(accuracy, feed_dict={x: batch_x, y: batch_y, 'nbatch:0': batch_size})
-                loss = sess.run(cost, feed_dict={x: batch_x, y: batch_y, 'nbatch:0': batch_size})
+                acc = sess.run(accuracy, feed_dict={x: batch_x, y: batch_y})
+                loss = sess.run(cost, feed_dict={x: batch_x, y: batch_y})
                 print ("epoch " + str(epoch) + ", Minibatch Loss=" + \
                     "{:.6f}".format(loss) + ", Training Accuracy= " + \
                     "{:.5f}".format(acc))
@@ -128,7 +140,7 @@ def main():
         test_len = 512
         test_data = mnist.test.images[:test_len].reshape((-1, n_steps, n_input))
         test_label = mnist.test.labels[:test_len]
-        print ("Testing accuracy:", sess.run(accuracy, feed_dict={x: test_data, y: test_label, 'nbatch:0': test_len}))
+        print ("Testing accuracy:", sess.run(accuracy, feed_dict={x: test_data, y: test_label}))
 
 
 main()
