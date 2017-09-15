@@ -28,8 +28,8 @@ def main():
     x = tf.placeholder(tf.float32, [None, n_steps, n_input])
     y = tf.placeholder(tf.float32, [None, n_classes])
 
-    weights = tf.Variable(tf.random_normal([n_hidden, n_classes]), trainable=True)
-    biases = tf.Variable(tf.random_normal([n_classes]), trainable=True)
+    weights = tf.Variable(tf.random_normal([n_hidden, n_classes])/tf.sqrt(n_hidden), trainable=True)
+    biases = tf.Variable(tf.zeros([n_classes]), trainable=True)
 
     # begin lstm
     x1 = procdata(x,num_steps=n_steps,input_size=n_input)
