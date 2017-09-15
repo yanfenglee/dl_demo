@@ -46,8 +46,10 @@ def RNN(cell, X):
 
     input_size,units = cell.get_state_size()
 
-    h = tf.zeros([128, units])
-    c = tf.zeros([128, units])
+    batch_size = tf.placeholder(tf.int32,name='nbatch')
+
+    h = tf.zeros([batch_size, units])
+    c = tf.zeros([batch_size, units])
 
     for x in X:
         h,c = cell.call(x,(h,c))
@@ -112,10 +114,10 @@ def main():
         while epoch <= max_epoch:
             batch_x, batch_y = mnist.train.next_batch(batch_size)
             batch_x = batch_x.reshape((batch_size, n_steps, n_input))
-            sess.run(optimizer, feed_dict={x: batch_x, y: batch_y})
+            sess.run(optimizer, feed_dict={x: batch_x, y: batch_y, 'nbatch:0': batch_size})
             if epoch % display_step == 0:
-                acc = sess.run(accuracy, feed_dict={x: batch_x, y: batch_y})
-                loss = sess.run(cost, feed_dict={x: batch_x, y: batch_y})
+                acc = sess.run(accuracy, feed_dict={x: batch_x, y: batch_y, 'nbatch:0': batch_size})
+                loss = sess.run(cost, feed_dict={x: batch_x, y: batch_y, 'nbatch:0': batch_size})
                 print ("epoch " + str(epoch) + ", Minibatch Loss=" + \
                     "{:.6f}".format(loss) + ", Training Accuracy= " + \
                     "{:.5f}".format(acc))
@@ -123,10 +125,10 @@ def main():
             epoch += 1
         print ("Optimization Finishes!")
 
-        test_len = 128
+        test_len = 512
         test_data = mnist.test.images[:test_len].reshape((-1, n_steps, n_input))
         test_label = mnist.test.labels[:test_len]
-        print ("Testing accuracy:", sess.run(accuracy, feed_dict={x: test_data, y: test_label}))
+        print ("Testing accuracy:", sess.run(accuracy, feed_dict={x: test_data, y: test_label, 'nbatch:0': test_len}))
 
 
 main()
