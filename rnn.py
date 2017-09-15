@@ -21,3 +21,17 @@ def static_rnn(cell, X):
         out.append((h,c))
 
     return out
+
+def static_bidirectional_rnn(fw_cell,bw_cell, X):
+    state1 = static_rnn(fw_cell,X)
+
+    X1 = list(reversed(X))
+    state2 = static_rnn(bw_cell,X1)
+
+    outputs = []
+    for fw, bw in zip(state1, state2):
+        h1,c1 = fw
+        h2,c2 = bw
+        outputs.append((h1+h2,c1+c2))
+
+    return outputs

@@ -33,7 +33,9 @@ def main():
     # begin lstm
     x1 = procdata(x,num_steps=n_steps,input_size=n_input)
     cell = rc.LSTMCell(n_hidden)
-    outputs = rnn.static_rnn(cell, x1)
+    #outputs = rnn.static_rnn(cell, x1)
+    cell2 = rc.LSTMCell(n_hidden)
+    outputs = rnn.static_bidirectional_rnn(cell,cell2, x1)
     h,_ = outputs[-1]
     #outputs = tf.reshape(outputs, [-1,n_hidden])
     yhat = tf.matmul(h, weights) + biases
