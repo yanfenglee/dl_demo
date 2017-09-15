@@ -1,7 +1,7 @@
 import tensorflow as tf
 import rnn_cell as rc
 
-def LSTM(cell, X):
+def static_rnn(cell, X):
     
     out = []
 
