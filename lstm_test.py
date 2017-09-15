@@ -72,7 +72,7 @@ def main():
             epoch += 1
         print ("Optimization Finishes!")
 
-        test_len = 512
+        test_len = 4096
         test_data = mnist.test.images[:test_len].reshape((-1, n_steps, n_input))
         test_label = mnist.test.labels[:test_len]
         print ("Testing accuracy:", sess.run(accuracy, feed_dict={x: test_data, y: test_label}))
