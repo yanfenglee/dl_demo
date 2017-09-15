@@ -22,17 +22,17 @@ class LSTMCell:
 
         return Wx,Wh,b
 
-    def callgate(self,X,H,gate):
+    def linear(self,X,H,gate):
         wx,wh,b = gate
         return tf.matmul(X,wx) + tf.matmul(H,wh) + b
 
     def call(self, X, hc):
         h_prev,c_prev = hc
 
-        i = self.callgate(X, h_prev, self.igate)
-        f = self.callgate(X, h_prev, self.fgate)
-        o = self.callgate(X, h_prev, self.ogate)
-        g = self.callgate(X, h_prev, self.ggate)
+        i = self.linear(X, h_prev, self.igate)
+        f = self.linear(X, h_prev, self.fgate)
+        o = self.linear(X, h_prev, self.ogate)
+        g = self.linear(X, h_prev, self.ggate)
 
         c = c_prev * tf.sigmoid(f) + tf.tanh(g) * tf.sigmoid(i)
         h = tf.tanh(c) * tf.sigmoid(o)
@@ -42,7 +42,7 @@ class LSTMCell:
 
 def RNN(cell, X):
     
-    houtputs=[]
+    out = []
 
     input_size,units = cell.get_state_size()
 
@@ -51,9 +51,9 @@ def RNN(cell, X):
 
     for x in X:
         h,c = cell.call(x,(h,c))
-        houtputs.append((h,c))
+        out.append((h,c))
 
-    return houtputs
+    return out
 
 def procdata(X, num_steps, input_size):
     X = tf.transpose(X,[1,0,2])
